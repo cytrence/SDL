@@ -1046,6 +1046,8 @@ static void ChooseBestCameraSpec(SDL_CameraDevice *device, const SDL_CameraSpec 
         }
     }
 
+    closest->colorspace = SDL_COLORSPACE_BT709_LIMITED;
+
     SDL_assert(closest->width > 0);
     SDL_assert(closest->height > 0);
     SDL_assert(closest->format != SDL_PIXELFORMAT_UNKNOWN);
