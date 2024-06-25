@@ -505,6 +505,7 @@
 #define SDL_GetWindowSurface SDL_GetWindowSurface_REAL
 #define SDL_GetWindowSurfaceVSync SDL_GetWindowSurfaceVSync_REAL
 #define SDL_GetWindowTitle SDL_GetWindowTitle_REAL
+#define SDL_GetWindows SDL_GetWindows_REAL
 #define SDL_GlobDirectory SDL_GlobDirectory_REAL
 #define SDL_GlobStorageDirectory SDL_GlobStorageDirectory_REAL
 #define SDL_HapticEffectSupported SDL_HapticEffectSupported_REAL
@@ -955,7 +956,11 @@
 #define SDL_iscntrl SDL_iscntrl_REAL
 #define SDL_isdigit SDL_isdigit_REAL
 #define SDL_isgraph SDL_isgraph_REAL
+#define SDL_isinf SDL_isinf_REAL
+#define SDL_isinff SDL_isinff_REAL
 #define SDL_islower SDL_islower_REAL
+#define SDL_isnan SDL_isnan_REAL
+#define SDL_isnanf SDL_isnanf_REAL
 #define SDL_isprint SDL_isprint_REAL
 #define SDL_ispunct SDL_ispunct_REAL
 #define SDL_isspace SDL_isspace_REAL
@@ -982,9 +987,12 @@
 #define SDL_powf SDL_powf_REAL
 #define SDL_qsort SDL_qsort_REAL
 #define SDL_qsort_r SDL_qsort_r_REAL
+#define SDL_rand SDL_rand_REAL
 #define SDL_rand_bits SDL_rand_bits_REAL
-#define SDL_rand_float SDL_rand_float_REAL
-#define SDL_rand_n SDL_rand_n_REAL
+#define SDL_rand_bits_r SDL_rand_bits_r_REAL
+#define SDL_rand_r SDL_rand_r_REAL
+#define SDL_randf SDL_randf_REAL
+#define SDL_randf_r SDL_randf_r_REAL
 #define SDL_realloc SDL_realloc_REAL
 #define SDL_round SDL_round_REAL
 #define SDL_roundf SDL_roundf_REAL

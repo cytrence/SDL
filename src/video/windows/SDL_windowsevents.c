@@ -724,8 +724,11 @@ static void WIN_HandleRawKeyboardInput(Uint64 timestamp, SDL_VideoData *data, HA
         }
         code = windows_scancode_table[index];
     }
-    if (state && !SDL_GetKeyboardFocus()) {
-        return;
+    if (state) {
+        SDL_Window *focus = SDL_GetKeyboardFocus();
+        if (!focus || focus->text_input_active) {
+            return;
+        }
     }
 
     SDL_SendKeyboardKey(timestamp, keyboardID, rawcode, code, state);
@@ -1244,7 +1247,7 @@ LRESULT CALLBACK WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
             }
         }
 
-        if (virtual_key || !data->videodata->raw_keyboard_enabled) {
+        if (virtual_key || !data->videodata->raw_keyboard_enabled || data->window->text_input_active) {
             SDL_SendKeyboardKey(WIN_GetEventTimestamp(), SDL_GLOBAL_KEYBOARD_ID, rawcode, code, SDL_PRESSED);
         }
     }
@@ -1265,7 +1268,7 @@ LRESULT CALLBACK WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
         SDL_Scancode code = WindowsScanCodeToSDLScanCode(lParam, wParam, &rawcode, &virtual_key);
         const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
 
-        if (virtual_key || !data->videodata->raw_keyboard_enabled) {
+        if (virtual_key || !data->videodata->raw_keyboard_enabled || data->window->text_input_active) {
             if (code == SDL_SCANCODE_PRINTSCREEN &&
                 keyboardState[code] == SDL_RELEASED) {
                 SDL_SendKeyboardKey(WIN_GetEventTimestamp(), SDL_GLOBAL_KEYBOARD_ID, rawcode, code, SDL_PRESSED);
@@ -1280,7 +1283,7 @@ LRESULT CALLBACK WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
         if (wParam == UNICODE_NOCHAR) {
             returnCode = 1;
         } else {
-            if (SDL_TextInputActive()) {
+            if (SDL_TextInputActive(data->window)) {
                 char text[5];
                 if (SDL_UCS4ToUTF8((Uint32)wParam, text) != text) {
                     SDL_SendKeyboardText(text);
@@ -1291,25 +1294,23 @@ LRESULT CALLBACK WIN_WindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
         break;
 
     case WM_CHAR:
-        if (SDL_TextInputActive()) {
+        if (SDL_TextInputActive(data->window)) {
             /* Characters outside Unicode Basic Multilingual Plane (BMP)
              * are coded as so called "surrogate pair" in two separate UTF-16 character events.
              * Cache high surrogate until next character event. */
             if (IS_HIGH_SURROGATE(wParam)) {
                 data->high_surrogate = (WCHAR)wParam;
             } else {
-                if (SDL_TextInputActive()) {
-                    WCHAR utf16[3];
+                WCHAR utf16[3];
 
-                    utf16[0] = data->high_surrogate ? data->high_surrogate : (WCHAR)wParam;
-                    utf16[1] = data->high_surrogate ? (WCHAR)wParam : L'\0';
-                    utf16[2] = L'\0';
+                utf16[0] = data->high_surrogate ? data->high_surrogate : (WCHAR)wParam;
+                utf16[1] = data->high_surrogate ? (WCHAR)wParam : L'\0';
+                utf16[2] = L'\0';
 
-                    char utf8[5];
-                    int result = WIN_WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, utf16, -1, utf8, sizeof(utf8), NULL, NULL);
-                    if (result > 0) {
-                        SDL_SendKeyboardText(utf8);
-                    }
+                char utf8[5];
+                int result = WIN_WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, utf16, -1, utf8, sizeof(utf8), NULL, NULL);
+                if (result > 0) {
+                    SDL_SendKeyboardText(utf8);
                 }
                 data->high_surrogate = L'\0';
             }
