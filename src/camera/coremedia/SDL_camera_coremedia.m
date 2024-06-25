@@ -273,7 +273,7 @@ static int COREMEDIA_OpenDevice(SDL_CameraDevice *device, const SDL_CameraSpec *
         }
 
         for (AVFrameRateRange *framerate in format.videoSupportedFrameRateRanges) {
-            if (rate >= framerate.minFrameRate && rate <= framerate.maxFrameRate) {
+            if (rate <= framerate.maxFrameRate) {
                 spec_format = format;
                 break;
             }
