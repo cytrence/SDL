@@ -852,6 +852,62 @@ static int surface_testFlip(void *arg)
     return TEST_COMPLETED;
 }
 
+static int surface_testPalette(void *arg)
+{
+    SDL_Surface *source, *surface, *output;
+    SDL_Palette *palette;
+    Uint8 *pixels;
+
+    palette = SDL_CreatePalette(2);
+    SDLTest_AssertCheck(palette != NULL, "SDL_CreatePalette()");
+
+    source = SDL_CreateSurface(1, 1, SDL_PIXELFORMAT_INDEX8);
+    SDLTest_AssertCheck(source != NULL, "SDL_CreateSurface()");
+
+    surface = SDL_CreateSurface(1, 1, SDL_PIXELFORMAT_INDEX8);
+    SDLTest_AssertCheck(surface != NULL, "SDL_CreateSurface()");
+
+    pixels = (Uint8 *)surface->pixels;
+    SDLTest_AssertCheck(*pixels == 0, "Expected *pixels == 0 got %u", *pixels);
+
+    /* Identity copy between indexed surfaces without a palette */
+    *(Uint8 *)source->pixels = 1;
+    SDL_BlitSurface(source, NULL, surface, NULL);
+    SDLTest_AssertCheck(*pixels == 1, "Expected *pixels == 1 got %u", *pixels);
+
+    /* Identity copy between indexed surfaces where the destination has a palette */
+    palette->colors[0].r = 0;
+    palette->colors[0].g = 0;
+    palette->colors[0].b = 0;
+    palette->colors[1].r = 0xFF;
+    palette->colors[1].g = 0;
+    palette->colors[1].b = 0;
+    SDL_SetSurfacePalette(surface, palette);
+    *pixels = 0;
+    SDL_BlitSurface(source, NULL, surface, NULL);
+    SDLTest_AssertCheck(*pixels == 1, "Expected *pixels == 1 got %u", *pixels);
+
+    output = SDL_CreateSurface(1, 1, SDL_PIXELFORMAT_RGBA32);
+    SDLTest_AssertCheck(output != NULL, "SDL_CreateSurface()");
+
+    pixels = (Uint8 *)output->pixels;
+    SDL_BlitSurface(surface, NULL, output, NULL);
+    SDLTest_AssertCheck(*pixels == 0xFF, "Expected *pixels == 0xFF got 0x%.2X", *pixels);
+
+    /* Set the palette color and blit again */
+    palette->colors[1].r = 0xAA;
+    SDL_SetSurfacePalette(surface, palette);
+    SDL_BlitSurface(surface, NULL, output, NULL);
+    SDLTest_AssertCheck(*pixels == 0xAA, "Expected *pixels == 0xAA got 0x%.2X", *pixels);
+
+    SDL_DestroyPalette(palette);
+    SDL_DestroySurface(source);
+    SDL_DestroySurface(surface);
+    SDL_DestroySurface(output);
+
+    return TEST_COMPLETED;
+}
+
 
 /* ================= Test References ================== */
 
@@ -915,11 +971,16 @@ static const SDLTest_TestCaseReference surfaceTestFlip = {
     surface_testFlip, "surface_testFlip", "Test surface flipping.", TEST_ENABLED
 };
 
+static const SDLTest_TestCaseReference surfaceTestPalette = {
+    surface_testPalette, "surface_testPalette", "Test surface palette operations.", TEST_ENABLED
+};
+
 /* Sequence of Surface test cases */
 static const SDLTest_TestCaseReference *surfaceTests[] = {
     &surfaceTest1, &surfaceTest2, &surfaceTest3, &surfaceTest4, &surfaceTest5,
     &surfaceTest6, &surfaceTest7, &surfaceTest8, &surfaceTest9, &surfaceTest10,
-    &surfaceTest11, &surfaceTest12, &surfaceTestOverflow, &surfaceTestFlip, NULL
+    &surfaceTest11, &surfaceTest12, &surfaceTestOverflow, &surfaceTestFlip,
+    &surfaceTestPalette, NULL
 };
 
 /* Surface test suite (global) */

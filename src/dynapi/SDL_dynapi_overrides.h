@@ -126,7 +126,6 @@
 #define SDL_DestroyHapticEffect SDL_DestroyHapticEffect_REAL
 #define SDL_DestroyMutex SDL_DestroyMutex_REAL
 #define SDL_DestroyPalette SDL_DestroyPalette_REAL
-#define SDL_DestroyPixelFormat SDL_DestroyPixelFormat_REAL
 #define SDL_DestroyProperties SDL_DestroyProperties_REAL
 #define SDL_DestroyRWLock SDL_DestroyRWLock_REAL
 #define SDL_DestroyRenderer SDL_DestroyRenderer_REAL
@@ -867,6 +866,7 @@
 #define SDL_Vulkan_CreateSurface SDL_Vulkan_CreateSurface_REAL
 #define SDL_Vulkan_DestroySurface SDL_Vulkan_DestroySurface_REAL
 #define SDL_Vulkan_GetInstanceExtensions SDL_Vulkan_GetInstanceExtensions_REAL
+#define SDL_Vulkan_GetPresentationSupport SDL_Vulkan_GetPresentationSupport_REAL
 #define SDL_Vulkan_GetVkGetInstanceProcAddr SDL_Vulkan_GetVkGetInstanceProcAddr_REAL
 #define SDL_Vulkan_LoadLibrary SDL_Vulkan_LoadLibrary_REAL
 #define SDL_Vulkan_UnloadLibrary SDL_Vulkan_UnloadLibrary_REAL
