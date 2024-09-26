@@ -758,7 +758,7 @@ SDL_CameraSpec *SDL_GetCameraDeviceSupportedFormats(SDL_CameraDeviceID instance_
     return retval;
 }
 
-#if !NOT_CYTRENCE
+#ifndef NOT_CYTRENCE
 SDL_DECLSPEC bool SDLCALL SDL_IsCameraZombie(SDL_Camera *camera)
 {
     return camera == NULL || SDL_GetAtomicInt(&camera->zombie) != 0;
