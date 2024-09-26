@@ -238,6 +238,9 @@ SDL_DYNAPI_PROC(int,SDL_GetCameraFormat,(SDL_Camera *a, SDL_CameraSpec *b),(a,b)
 SDL_DYNAPI_PROC(SDL_CameraDeviceID,SDL_GetCameraInstanceID,(SDL_Camera *a),(a),return)
 SDL_DYNAPI_PROC(int,SDL_GetCameraPermissionState,(SDL_Camera *a),(a),return)
 SDL_DYNAPI_PROC(SDL_PropertiesID,SDL_GetCameraProperties,(SDL_Camera *a),(a),return)
+#if !NOT_CYTRENCE
+SDL_DYNAPI_PROC(bool,SDL_IsCameraZombie,(SDL_Camera *a),(a),return)
+#endif
 SDL_DYNAPI_PROC(void*,SDL_GetClipboardData,(const char *a, size_t *b),(a,b),return)
 SDL_DYNAPI_PROC(char*,SDL_GetClipboardText,(void),(),return)
 SDL_DYNAPI_PROC(const SDL_DisplayMode*,SDL_GetClosestFullscreenDisplayMode,(SDL_DisplayID a, int b, int c, float d, SDL_bool e),(a,b,c,d,e),return)

@@ -219,6 +219,9 @@
 #define SDL_GetCameraPermissionState SDL_GetCameraPermissionState_REAL
 #define SDL_GetCameraProperties SDL_GetCameraProperties_REAL
 #define SDL_GetClipboardData SDL_GetClipboardData_REAL
+#if !NOT_CYTRENCE
+#define SDL_IsCameraZombie SDL_IsCameraZombie_REAL
+#endif
 #define SDL_GetClipboardText SDL_GetClipboardText_REAL
 #define SDL_GetClosestFullscreenDisplayMode SDL_GetClosestFullscreenDisplayMode_REAL
 #define SDL_GetCurrentAudioDriver SDL_GetCurrentAudioDriver_REAL

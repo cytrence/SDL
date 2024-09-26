@@ -399,6 +399,10 @@ extern SDL_DECLSPEC SDL_PropertiesID SDLCALL SDL_GetCameraProperties(SDL_Camera 
  */
 extern SDL_DECLSPEC int SDLCALL SDL_GetCameraFormat(SDL_Camera *camera, SDL_CameraSpec *spec);
 
+#if !NOT_CYTRENCE
+extern SDL_DECLSPEC bool SDLCALL SDL_IsCameraZombie(SDL_Camera *camera);
+#endif
+
 /**
  * Acquire a frame.
  *
