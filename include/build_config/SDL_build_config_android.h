@@ -42,6 +42,7 @@
 #define HAVE_MATH_H 1
 #define HAVE_SIGNAL_H 1
 #define HAVE_STDARG_H 1
+#define HAVE_STDBOOL_H 1
 #define HAVE_STDDEF_H 1
 #define HAVE_STDINT_H 1
 #define HAVE_STDIO_H 1
@@ -58,7 +59,6 @@
 #define HAVE_REALLOC    1
 #define HAVE_FREE   1
 #define HAVE_GETENV 1
-#define HAVE_SETENV 1
 #define HAVE_PUTENV 1
 #define HAVE_SETENV 1
 #define HAVE_UNSETENV   1
@@ -145,7 +145,6 @@
 
 /* Enable various audio drivers */
 #ifndef SDL_AUDIO_DISABLED
-#define SDL_AUDIO_DRIVER_ANDROID    1
 #define SDL_AUDIO_DRIVER_OPENSLES   1
 #define SDL_AUDIO_DRIVER_AAUDIO     1
 #endif /* SDL_AUDIO_DISABLED */
@@ -159,6 +158,9 @@
 #ifndef SDL_HAPTIC_DISABLED
 #define SDL_HAPTIC_ANDROID  1
 #endif /* SDL_HAPTIC_DISABLED */
+
+/* Enable the stub process support */
+#define SDL_PROCESS_DUMMY 1
 
 /* Enable sensor driver */
 #ifndef SDL_SENSOR_DISABLED
@@ -188,11 +190,13 @@
 #define SDL_VIDEO_RENDER_OGL_ES2    1
 
 /* Enable Vulkan support */
-/* Android does not support Vulkan in native code using the "armeabi" ABI. */
 #if defined(__ARM_ARCH) && __ARM_ARCH < 7
-#define SDL_VIDEO_VULKAN 0
+/* Android does not support Vulkan in native code using the "armeabi" ABI. */
 #else
 #define SDL_VIDEO_VULKAN 1
+#define SDL_VIDEO_RENDER_VULKAN 1
+#define SDL_GPU_VULKAN 1
+#define SDL_VIDEO_RENDER_GPU 1
 #endif
 
 /* Enable system power support */

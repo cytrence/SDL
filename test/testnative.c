@@ -117,15 +117,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    /* Enable standard application logging */
-    SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
-
     /* Parse commandline */
     if (!SDLTest_CommonDefaultArgs(state, argc, argv)) {
         return 1;
     }
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL video: %s\n",
                      SDL_GetError());
         exit(1);
@@ -151,8 +148,8 @@ int main(int argc, char *argv[])
         quit(3);
     }
     props = SDL_CreateProperties();
-    SDL_SetProperty(props, "sdl2-compat.external_window", native_window);
-    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, SDL_TRUE);
+    SDL_SetPointerProperty(props, "sdl2-compat.external_window", native_window);
+    SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_OPENGL_BOOLEAN, true);
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, WINDOW_W);
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, WINDOW_H);
     window = SDL_CreateWindowWithProperties(props);
@@ -174,7 +171,7 @@ int main(int argc, char *argv[])
     SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xFF);
     SDL_RenderClear(renderer);
 
-    sprite = LoadTexture(renderer, "icon.bmp", SDL_TRUE, NULL, NULL);
+    sprite = LoadTexture(renderer, "icon.bmp", true, NULL, NULL);
     if (!sprite) {
         quit(6);
     }
@@ -206,6 +203,14 @@ int main(int argc, char *argv[])
     while (!done) {
         /* Check for events */
         while (SDL_PollEvent(&event)) {
+            if (state->verbose & VERBOSE_EVENT) {
+                if (((event.type != SDL_EVENT_MOUSE_MOTION) &&
+                    (event.type != SDL_EVENT_FINGER_MOTION)) ||
+                    (state->verbose & VERBOSE_MOTION)) {
+                    SDLTest_PrintEvent(&event);
+                }
+            }
+
             switch (event.type) {
             case SDL_EVENT_WINDOW_EXPOSED:
                 SDL_SetRenderDrawColor(renderer, 0xA0, 0xA0, 0xA0, 0xFF);

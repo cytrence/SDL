@@ -32,7 +32,6 @@
 #define SDL_guid_h_
 
 #include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
 
 #include <SDL3/SDL_begin_code.h>
 /* Set up for C function definitions, even when using C++ */
@@ -66,19 +65,15 @@ typedef struct SDL_GUID {
 /**
  * Get an ASCII string representation for a given SDL_GUID.
  *
- * You should supply at least 33 bytes for pszGUID.
- *
  * \param guid the SDL_GUID you wish to convert to string.
  * \param pszGUID buffer in which to write the ASCII string.
- * \param cbGUID the size of pszGUID.
- * \returns 0 on success or a negative error code on failure; call
- *          SDL_GetError() for more information.
+ * \param cbGUID the size of pszGUID, should be at least 33 bytes.
  *
  * \since This function is available since SDL 3.0.0.
  *
- * \sa SDL_GUIDFromString
+ * \sa SDL_StringToGUID
  */
-extern SDL_DECLSPEC int SDLCALL SDL_GUIDToString(SDL_GUID guid, char *pszGUID, int cbGUID);
+extern SDL_DECLSPEC void SDLCALL SDL_GUIDToString(SDL_GUID guid, char *pszGUID, int cbGUID);
 
 /**
  * Convert a GUID string into a SDL_GUID structure.
@@ -94,7 +89,7 @@ extern SDL_DECLSPEC int SDLCALL SDL_GUIDToString(SDL_GUID guid, char *pszGUID, i
  *
  * \sa SDL_GUIDToString
  */
-extern SDL_DECLSPEC SDL_GUID SDLCALL SDL_GUIDFromString(const char *pchGUID);
+extern SDL_DECLSPEC SDL_GUID SDLCALL SDL_StringToGUID(const char *pchGUID);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

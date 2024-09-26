@@ -28,17 +28,21 @@
 #ifndef SDL_events_h_
 #define SDL_events_h_
 
+#include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_audio.h>
+#include <SDL3/SDL_camera.h>
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_gamepad.h>
 #include <SDL3/SDL_joystick.h>
 #include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_pen.h>
-#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_power.h>
+#include <SDL3/SDL_sensor.h>
+#include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_touch.h>
 #include <SDL3/SDL_video.h>
-#include <SDL3/SDL_camera.h>
 
 #include <SDL3/SDL_begin_code.h>
 /* Set up for C function definitions, even when using C++ */
@@ -47,25 +51,6 @@ extern "C" {
 #endif
 
 /* General keyboard/mouse/pen state definitions */
-
-/**
- * A value that signifies a button is no longer pressed.
- *
- * \since This macro is available since SDL 3.0.0.
- *
- * \sa SDL_PRESSED
- */
-#define SDL_RELEASED    0
-
-/**
- * A value that signifies a button has been pressed down.
- *
- * \since This macro is available since SDL 3.0.0.
- *
- * \sa SDL_RELEASED
- */
-#define SDL_PRESSED     1
-
 
 /**
  * The types of events that can be delivered.
@@ -79,28 +64,28 @@ typedef enum SDL_EventType
     /* Application events */
     SDL_EVENT_QUIT           = 0x100, /**< User-requested quit */
 
-    /* These application events have special meaning on iOS, see README-ios.md for details */
-    SDL_EVENT_TERMINATING,        /**< The application is being terminated by the OS
+    /* These application events have special meaning on iOS and Android, see README-ios.md and README-android.md for details */
+    SDL_EVENT_TERMINATING,      /**< The application is being terminated by the OS. This event must be handled in a callback set with SDL_AddEventWatch().
                                      Called on iOS in applicationWillTerminate()
                                      Called on Android in onDestroy()
                                 */
-    SDL_EVENT_LOW_MEMORY,          /**< The application is low on memory, free memory if possible.
+    SDL_EVENT_LOW_MEMORY,       /**< The application is low on memory, free memory if possible. This event must be handled in a callback set with SDL_AddEventWatch().
                                      Called on iOS in applicationDidReceiveMemoryWarning()
-                                     Called on Android in onLowMemory()
+                                     Called on Android in onTrimMemory()
                                 */
-    SDL_EVENT_WILL_ENTER_BACKGROUND, /**< The application is about to enter the background
+    SDL_EVENT_WILL_ENTER_BACKGROUND, /**< The application is about to enter the background. This event must be handled in a callback set with SDL_AddEventWatch().
                                      Called on iOS in applicationWillResignActive()
                                      Called on Android in onPause()
                                 */
-    SDL_EVENT_DID_ENTER_BACKGROUND, /**< The application did enter the background and may not get CPU for some time
+    SDL_EVENT_DID_ENTER_BACKGROUND, /**< The application did enter the background and may not get CPU for some time. This event must be handled in a callback set with SDL_AddEventWatch().
                                      Called on iOS in applicationDidEnterBackground()
                                      Called on Android in onPause()
                                 */
-    SDL_EVENT_WILL_ENTER_FOREGROUND, /**< The application is about to enter the foreground
+    SDL_EVENT_WILL_ENTER_FOREGROUND, /**< The application is about to enter the foreground. This event must be handled in a callback set with SDL_AddEventWatch().
                                      Called on iOS in applicationWillEnterForeground()
                                      Called on Android in onResume()
                                 */
-    SDL_EVENT_DID_ENTER_FOREGROUND, /**< The application is now interactive
+    SDL_EVENT_DID_ENTER_FOREGROUND, /**< The application is now interactive. This event must be handled in a callback set with SDL_AddEventWatch().
                                      Called on iOS in applicationDidBecomeActive()
                                      Called on Android in onResume()
                                 */
@@ -115,6 +100,8 @@ typedef enum SDL_EventType
     SDL_EVENT_DISPLAY_ADDED,                 /**< Display has been added to the system */
     SDL_EVENT_DISPLAY_REMOVED,               /**< Display has been removed from the system */
     SDL_EVENT_DISPLAY_MOVED,                 /**< Display has changed position */
+    SDL_EVENT_DISPLAY_DESKTOP_MODE_CHANGED,  /**< Display has changed desktop mode */
+    SDL_EVENT_DISPLAY_CURRENT_MODE_CHANGED,  /**< Display has changed current mode */
     SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED, /**< Display has changed content scale */
     SDL_EVENT_DISPLAY_FIRST = SDL_EVENT_DISPLAY_ORIENTATION,
     SDL_EVENT_DISPLAY_LAST = SDL_EVENT_DISPLAY_CONTENT_SCALE_CHANGED,
@@ -128,6 +115,7 @@ typedef enum SDL_EventType
     SDL_EVENT_WINDOW_MOVED,             /**< Window has been moved to data1, data2 */
     SDL_EVENT_WINDOW_RESIZED,           /**< Window has been resized to data1xdata2 */
     SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED,/**< The pixel size of the window has changed to data1xdata2 */
+    SDL_EVENT_WINDOW_METAL_VIEW_RESIZED,/**< The pixel size of a Metal view associated with the window has changed */
     SDL_EVENT_WINDOW_MINIMIZED,         /**< Window has been minimized */
     SDL_EVENT_WINDOW_MAXIMIZED,         /**< Window has been maximized */
     SDL_EVENT_WINDOW_RESTORED,          /**< Window has been restored to normal size and position */
@@ -140,6 +128,7 @@ typedef enum SDL_EventType
     SDL_EVENT_WINDOW_ICCPROF_CHANGED,   /**< The ICC profile of the window's display has changed */
     SDL_EVENT_WINDOW_DISPLAY_CHANGED,   /**< Window has been moved to display data1 */
     SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED, /**< Window display scale has been changed */
+    SDL_EVENT_WINDOW_SAFE_AREA_CHANGED, /**< The window safe area has been changed */
     SDL_EVENT_WINDOW_OCCLUDED,          /**< The window has been occluded */
     SDL_EVENT_WINDOW_ENTER_FULLSCREEN,  /**< The window has entered fullscreen mode */
     SDL_EVENT_WINDOW_LEAVE_FULLSCREEN,  /**< The window has left fullscreen mode */
@@ -147,11 +136,9 @@ typedef enum SDL_EventType
                                              in an event watcher, the window handle is still valid and can still be used to retrieve any userdata
                                              associated with the window. Otherwise, the handle has already been destroyed and all resources
                                              associated with it are invalid */
-    SDL_EVENT_WINDOW_PEN_ENTER,         /**< Window has gained focus of the pressure-sensitive pen with ID "data1" */
-    SDL_EVENT_WINDOW_PEN_LEAVE,         /**< Window has lost focus of the pressure-sensitive pen with ID "data1" */
     SDL_EVENT_WINDOW_HDR_STATE_CHANGED, /**< Window HDR properties have changed */
     SDL_EVENT_WINDOW_FIRST = SDL_EVENT_WINDOW_SHOWN,
-    SDL_EVENT_WINDOW_LAST = SDL_EVENT_WINDOW_PEN_LEAVE,
+    SDL_EVENT_WINDOW_LAST = SDL_EVENT_WINDOW_HDR_STATE_CHANGED,
 
     /* Keyboard events */
     SDL_EVENT_KEY_DOWN        = 0x300, /**< Key pressed */
@@ -223,11 +210,14 @@ typedef enum SDL_EventType
     SDL_EVENT_SENSOR_UPDATE = 0x1200,     /**< A sensor was updated */
 
     /* Pressure-sensitive pen events */
-    SDL_EVENT_PEN_DOWN      = 0x1300,     /**< Pressure-sensitive pen touched drawing surface */
+    SDL_EVENT_PEN_PROXIMITY_IN = 0x1300,  /**< Pressure-sensitive pen has become available */
+    SDL_EVENT_PEN_PROXIMITY_OUT,          /**< Pressure-sensitive pen has become unavailable */
+    SDL_EVENT_PEN_DOWN,                   /**< Pressure-sensitive pen touched drawing surface */
     SDL_EVENT_PEN_UP,                     /**< Pressure-sensitive pen stopped touching drawing surface */
-    SDL_EVENT_PEN_MOTION,                 /**< Pressure-sensitive pen moved, or angle/pressure changed */
     SDL_EVENT_PEN_BUTTON_DOWN,            /**< Pressure-sensitive pen button pressed */
     SDL_EVENT_PEN_BUTTON_UP,              /**< Pressure-sensitive pen button released */
+    SDL_EVENT_PEN_MOTION,                 /**< Pressure-sensitive pen is moving on the tablet */
+    SDL_EVENT_PEN_AXIS,                   /**< Pressure-sensitive pen angle/pressure/etc changed */
 
     /* Camera hotplug events */
     SDL_EVENT_CAMERA_DEVICE_ADDED = 0x1400,  /**< A new camera device is available */
@@ -281,6 +271,7 @@ typedef struct SDL_DisplayEvent
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_DisplayID displayID;/**< The associated display */
     Sint32 data1;       /**< event dependent data */
+    Sint32 data2;       /**< event dependent data */
 } SDL_DisplayEvent;
 
 /**
@@ -336,8 +327,8 @@ typedef struct SDL_KeyboardEvent
     SDL_Keycode key;        /**< SDL virtual key code */
     SDL_Keymod mod;         /**< current key modifiers */
     Uint16 raw;             /**< The platform dependent scancode for this event */
-    Uint8 state;            /**< SDL_PRESSED or SDL_RELEASED */
-    Uint8 repeat;           /**< Non-zero if this is a key repeat */
+    bool down;          /**< true if the key is pressed */
+    bool repeat;        /**< true if this is a key repeat */
 } SDL_KeyboardEvent;
 
 /**
@@ -346,8 +337,6 @@ typedef struct SDL_KeyboardEvent
  * The start cursor is the position, in UTF-8 characters, where new typing
  * will be inserted into the editing text. The length is the number of UTF-8
  * characters that will be replaced by new typing.
- *
- * The text string follows the SDL_GetStringRule.
  *
  * \since This struct is available since SDL 3.0.0.
  */
@@ -365,8 +354,6 @@ typedef struct SDL_TextEditingEvent
 /**
  * Keyboard IME candidates event structure (event.edit_candidates.*)
  *
- * The candidates follow the SDL_GetStringRule.
- *
  * \since This struct is available since SDL 3.0.0.
  */
 typedef struct SDL_TextEditingCandidatesEvent
@@ -378,13 +365,14 @@ typedef struct SDL_TextEditingCandidatesEvent
     const char * const *candidates;    /**< The list of candidates, or NULL if there are no candidates available */
     Sint32 num_candidates;      /**< The number of strings in `candidates` */
     Sint32 selected_candidate;  /**< The index of the selected candidate, or -1 if no candidate is selected */
-    SDL_bool horizontal;          /**< SDL_TRUE if the list is horizontal, SDL_FALSE if it's vertical */
+    bool horizontal;          /**< true if the list is horizontal, false if it's vertical */
+    Uint8 padding1;
+    Uint8 padding2;
+    Uint8 padding3;
 } SDL_TextEditingCandidatesEvent;
 
 /**
  * Keyboard text input event structure (event.text.*)
- *
- * The text string follows the SDL_GetStringRule.
  *
  * This event will never be delivered unless text input is enabled by calling
  * SDL_StartTextInput(). Text input is disabled by default!
@@ -427,7 +415,7 @@ typedef struct SDL_MouseMotionEvent
     Uint32 reserved;
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_WindowID windowID; /**< The window with mouse focus, if any */
-    SDL_MouseID which;  /**< The mouse instance id, SDL_TOUCH_MOUSEID, or SDL_PEN_MOUSEID */
+    SDL_MouseID which;  /**< The mouse instance id or SDL_TOUCH_MOUSEID */
     SDL_MouseButtonFlags state;       /**< The current button state */
     float x;            /**< X coordinate, relative to window */
     float y;            /**< Y coordinate, relative to window */
@@ -446,9 +434,9 @@ typedef struct SDL_MouseButtonEvent
     Uint32 reserved;
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_WindowID windowID; /**< The window with mouse focus, if any */
-    SDL_MouseID which;  /**< The mouse instance id, SDL_TOUCH_MOUSEID, or SDL_PEN_MOUSEID */
+    SDL_MouseID which;  /**< The mouse instance id, SDL_TOUCH_MOUSEID */
     Uint8 button;       /**< The mouse button index */
-    Uint8 state;        /**< SDL_PRESSED or SDL_RELEASED */
+    bool down;      /**< true if the button is pressed */
     Uint8 clicks;       /**< 1 for single-click, 2 for double-click, etc. */
     Uint8 padding;
     float x;            /**< X coordinate, relative to window */
@@ -466,7 +454,7 @@ typedef struct SDL_MouseWheelEvent
     Uint32 reserved;
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_WindowID windowID; /**< The window with mouse focus, if any */
-    SDL_MouseID which;  /**< The mouse instance id, SDL_TOUCH_MOUSEID, or SDL_PEN_MOUSEID */
+    SDL_MouseID which;  /**< The mouse instance id, SDL_TOUCH_MOUSEID */
     float x;            /**< The amount scrolled horizontally, positive to the right and negative to the left */
     float y;            /**< The amount scrolled vertically, positive away from the user and negative toward the user */
     SDL_MouseWheelDirection direction; /**< Set to one of the SDL_MOUSEWHEEL_* defines. When FLIPPED the values in X and Y will be opposite. Multiply by -1 to change them back */
@@ -547,7 +535,7 @@ typedef struct SDL_JoyButtonEvent
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_JoystickID which; /**< The joystick instance id */
     Uint8 button;       /**< The joystick button index */
-    Uint8 state;        /**< SDL_PRESSED or SDL_RELEASED */
+    bool down;      /**< true if the button is pressed */
     Uint8 padding1;
     Uint8 padding2;
 } SDL_JoyButtonEvent;
@@ -612,7 +600,7 @@ typedef struct SDL_GamepadButtonEvent
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_JoystickID which; /**< The joystick instance id */
     Uint8 button;       /**< The gamepad button (SDL_GamepadButton) */
-    Uint8 state;        /**< SDL_PRESSED or SDL_RELEASED */
+    bool down;      /**< true if the button is pressed */
     Uint8 padding1;
     Uint8 padding2;
 } SDL_GamepadButtonEvent;
@@ -676,7 +664,7 @@ typedef struct SDL_AudioDeviceEvent
     Uint32 reserved;
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_AudioDeviceID which;       /**< SDL_AudioDeviceID for the device being added or removed or changing */
-    Uint8 recording;    /**< zero if a playback device, non-zero if a recording device. */
+    bool recording; /**< false if a playback device, true if a recording device. */
     Uint8 padding1;
     Uint8 padding2;
     Uint8 padding3;
@@ -692,7 +680,7 @@ typedef struct SDL_CameraDeviceEvent
     SDL_EventType type; /**< SDL_EVENT_CAMERA_DEVICE_ADDED, SDL_EVENT_CAMERA_DEVICE_REMOVED, SDL_EVENT_CAMERA_DEVICE_APPROVED, SDL_EVENT_CAMERA_DEVICE_DENIED */
     Uint32 reserved;
     Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
-    SDL_CameraDeviceID which;       /**< SDL_CameraDeviceID for the device being added or removed or changing */
+    SDL_CameraID which;       /**< SDL_CameraID for the device being added or removed or changing */
 } SDL_CameraDeviceEvent;
 
 /**
@@ -715,73 +703,122 @@ typedef struct SDL_TouchFingerEvent
     SDL_WindowID windowID; /**< The window underneath the finger, if any */
 } SDL_TouchFingerEvent;
 
-
 /**
- * Pressure-sensitive pen touched or stopped touching surface (event.ptip.*)
+ * Pressure-sensitive pen proximity event structure (event.pmotion.*)
+ *
+ * When a pen becomes visible to the system (it is close enough to a tablet,
+ * etc), SDL will send an SDL_EVENT_PEN_PROXIMITY_IN event with the new pen's
+ * ID. This ID is valid until the pen leaves proximity again (has been removed
+ * from the tablet's area, the tablet has been unplugged, etc). If the same
+ * pen reenters proximity again, it will be given a new ID.
+ *
+ * Note that "proximity" means "close enough for the tablet to know the tool
+ * is there." The pen touching and lifting off from the tablet while not
+ * leaving the area are handled by SDL_EVENT_PEN_DOWN and SDL_EVENT_PEN_UP.
  *
  * \since This struct is available since SDL 3.0.0.
  */
-typedef struct SDL_PenTipEvent
+typedef struct SDL_PenProximityEvent
+{
+    SDL_EventType type; /**< SDL_EVENT_PEN_PROXIMITY_IN or SDL_EVENT_PEN_PROXIMITY_OUT */
+    Uint32 reserved;
+    Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
+    SDL_WindowID windowID; /**< The window with mouse focus, if any */
+    SDL_PenID which;        /**< The pen instance id */
+} SDL_PenProximityEvent;
+
+/**
+ * Pressure-sensitive pen motion event structure (event.pmotion.*)
+ *
+ * Depending on the hardware, you may get motion events when the pen is not
+ * touching a tablet, for tracking a pen even when it isn't drawing. You
+ * should listen for SDL_EVENT_PEN_DOWN and SDL_EVENT_PEN_UP events, or check
+ * `pen_state & SDL_PEN_INPUT_DOWN` to decide if a pen is "drawing" when
+ * dealing with pen motion.
+ *
+ * \since This struct is available since SDL 3.0.0.
+ */
+typedef struct SDL_PenMotionEvent
+{
+    SDL_EventType type; /**< SDL_EVENT_PEN_MOTION */
+    Uint32 reserved;
+    Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
+    SDL_WindowID windowID; /**< The window with mouse focus, if any */
+    SDL_PenID which;        /**< The pen instance id */
+    SDL_PenInputFlags pen_state;   /**< Complete pen input state at time of event */
+    float x;                /**< X position of pen on tablet */
+    float y;                /**< Y position of pen on tablet */
+} SDL_PenMotionEvent;
+
+/**
+ * Pressure-sensitive pen touched event structure (event.ptouch.*)
+ *
+ * These events come when a pen touches a surface (a tablet, etc), or lifts
+ * off from one.
+ *
+ * \since This struct is available since SDL 3.0.0.
+ */
+typedef struct SDL_PenTouchEvent
 {
     SDL_EventType type;     /**< SDL_EVENT_PEN_DOWN or SDL_EVENT_PEN_UP */
     Uint32 reserved;
     Uint64 timestamp;       /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_WindowID windowID;  /**< The window with pen focus, if any */
     SDL_PenID which;        /**< The pen instance id */
-    Uint8 tip;              /**< SDL_PEN_TIP_INK when using a regular pen tip, or SDL_PEN_TIP_ERASER if the pen is being used as an eraser (e.g., flipped to use the eraser tip)  */
-    Uint8 state;            /**< SDL_PRESSED on SDL_EVENT_PEN_DOWN and SDL_RELEASED on SDL_EVENT_PEN_UP */
-    Uint16 pen_state;       /**< Pen button masks (where SDL_BUTTON(1) is the first button, SDL_BUTTON(2) is the second button etc.), SDL_PEN_DOWN_MASK is set if the pen is touching the surface, and SDL_PEN_ERASER_MASK is set if the pen is (used as) an eraser. */
-    float x;                /**< X coordinate, relative to window */
-    float y;                /**< Y coordinate, relative to window */
-    float axes[SDL_PEN_NUM_AXES];   /**< Pen axes such as pressure and tilt (ordered as per SDL_PenAxis) */
-} SDL_PenTipEvent;
-
-/**
- * Pressure-sensitive pen motion / pressure / angle event structure
- * (event.pmotion.*)
- *
- * \since This struct is available since SDL 3.0.0.
- */
-typedef struct SDL_PenMotionEvent
-{
-    SDL_EventType type;     /**< SDL_EVENT_PEN_MOTION */
-    Uint32 reserved;
-    Uint64 timestamp;       /**< In nanoseconds, populated using SDL_GetTicksNS() */
-    SDL_WindowID windowID;  /**< The window with pen focus, if any */
-    SDL_PenID which;        /**< The pen instance id */
-    Uint8 padding1;
-    Uint8 padding2;
-    Uint16 pen_state;       /**< Pen button masks (where SDL_BUTTON(1) is the first button, SDL_BUTTON(2) is the second button etc.), SDL_PEN_DOWN_MASK is set if the pen is touching the surface, and SDL_PEN_ERASER_MASK is set if the pen is (used as) an eraser. */
-    float x;                /**< X coordinate, relative to window */
-    float y;                /**< Y coordinate, relative to window */
-    float axes[SDL_PEN_NUM_AXES];   /**< Pen axes such as pressure and tilt (ordered as per SDL_PenAxis) */
-} SDL_PenMotionEvent;
+    SDL_PenInputFlags pen_state;   /**< Complete pen input state at time of event */
+    float x;                /**< X position of pen on tablet */
+    float y;                /**< Y position of pen on tablet */
+    bool eraser;        /**< true if eraser end is used (not all pens support this). */
+    bool down;          /**< true if the pen is touching or false if the pen is lifted off */
+} SDL_PenTouchEvent;
 
 /**
  * Pressure-sensitive pen button event structure (event.pbutton.*)
+ *
+ * This is for buttons on the pen itself that the user might click. The pen
+ * itself pressing down to draw triggers a SDL_EVENT_PEN_DOWN event instead.
  *
  * \since This struct is available since SDL 3.0.0.
  */
 typedef struct SDL_PenButtonEvent
 {
-    SDL_EventType type;     /**< SDL_EVENT_PEN_BUTTON_DOWN or SDL_EVENT_PEN_BUTTON_UP */
+    SDL_EventType type; /**< SDL_EVENT_PEN_BUTTON_DOWN or SDL_EVENT_PEN_BUTTON_UP */
+    Uint32 reserved;
+    Uint64 timestamp;   /**< In nanoseconds, populated using SDL_GetTicksNS() */
+    SDL_WindowID windowID; /**< The window with mouse focus, if any */
+    SDL_PenID which;        /**< The pen instance id */
+    SDL_PenInputFlags pen_state;   /**< Complete pen input state at time of event */
+    float x;                /**< X position of pen on tablet */
+    float y;                /**< Y position of pen on tablet */
+    Uint8 button;       /**< The pen button index (first button is 1). */
+    bool down;      /**< true if the button is pressed */
+} SDL_PenButtonEvent;
+
+/**
+ * Pressure-sensitive pen pressure / angle event structure (event.paxis.*)
+ *
+ * You might get some of these events even if the pen isn't touching the
+ * tablet.
+ *
+ * \since This struct is available since SDL 3.0.0.
+ */
+typedef struct SDL_PenAxisEvent
+{
+    SDL_EventType type;     /**< SDL_EVENT_PEN_AXIS */
     Uint32 reserved;
     Uint64 timestamp;       /**< In nanoseconds, populated using SDL_GetTicksNS() */
     SDL_WindowID windowID;  /**< The window with pen focus, if any */
     SDL_PenID which;        /**< The pen instance id */
-    Uint8 button;           /**< The pen button index (1 represents the pen tip for compatibility with mouse events) */
-    Uint8 state;            /**< SDL_PRESSED or SDL_RELEASED */
-    Uint16 pen_state;       /**< Pen button masks (where SDL_BUTTON(1) is the first button, SDL_BUTTON(2) is the second button etc.), SDL_PEN_DOWN_MASK is set if the pen is touching the surface, and SDL_PEN_ERASER_MASK is set if the pen is (used as) an eraser. */
-    float x;                /**< X coordinate, relative to window */
-    float y;                /**< Y coordinate, relative to window */
-    float axes[SDL_PEN_NUM_AXES]; /**< Pen axes such as pressure and tilt (ordered as per SDL_PenAxis) */
-} SDL_PenButtonEvent;
+    SDL_PenInputFlags pen_state;   /**< Complete pen input state at time of event */
+    float x;                /**< X position of pen on tablet */
+    float y;                /**< Y position of pen on tablet */
+    SDL_PenAxis axis;       /**< Axis that has changed */
+    float value;            /**< New value of axis */
+} SDL_PenAxisEvent;
 
 /**
  * An event used to drop text or request a file open by the system
  * (event.drop.*)
- *
- * The source and data strings follow the SDL_GetStringRule.
  *
  * \since This struct is available since SDL 3.0.0.
  */
@@ -897,9 +934,11 @@ typedef union SDL_Event
     SDL_QuitEvent quit;                     /**< Quit request event data */
     SDL_UserEvent user;                     /**< Custom event data */
     SDL_TouchFingerEvent tfinger;           /**< Touch finger event data */
-    SDL_PenTipEvent ptip;                   /**< Pen tip touching or leaving drawing surface */
-    SDL_PenMotionEvent pmotion;             /**< Pen change in position, pressure, or angle */
-    SDL_PenButtonEvent pbutton;             /**< Pen button press */
+    SDL_PenProximityEvent pproximity;       /**< Pen proximity event data */
+    SDL_PenTouchEvent ptouch;               /**< Pen tip touching event data */
+    SDL_PenMotionEvent pmotion;             /**< Pen motion event data */
+    SDL_PenButtonEvent pbutton;             /**< Pen button event data */
+    SDL_PenAxisEvent paxis;                 /**< Pen axis event data */
     SDL_DropEvent drop;                     /**< Drag and drop event data */
     SDL_ClipboardEvent clipboard;           /**< Clipboard event data */
 
@@ -950,11 +989,17 @@ SDL_COMPILE_TIME_ASSERT(SDL_Event, sizeof(SDL_Event) == sizeof(((SDL_Event *)NUL
 extern SDL_DECLSPEC void SDLCALL SDL_PumpEvents(void);
 
 /* @{ */
+
+/**
+ * The type of action to request from SDL_PeepEvents().
+ *
+ * \since This enum is available since SDL 3.0.0.
+ */
 typedef enum SDL_EventAction
 {
-    SDL_ADDEVENT,
-    SDL_PEEKEVENT,
-    SDL_GETEVENT
+    SDL_ADDEVENT,  /**< Add events to the back of the queue. */
+    SDL_PEEKEVENT, /**< Check but don't remove events from the queue front. */
+    SDL_GETEVENT   /**< Retrieve/remove events from the front of the queue. */
 } SDL_EventAction;
 
 /**
@@ -966,7 +1011,9 @@ typedef enum SDL_EventAction
  *   event queue.
  * - `SDL_PEEKEVENT`: `numevents` events at the front of the event queue,
  *   within the specified minimum and maximum type, will be returned to the
- *   caller and will _not_ be removed from the queue.
+ *   caller and will _not_ be removed from the queue. If you pass NULL for
+ *   `events`, then `numevents` is ignored and the total number of matching
+ *   events will be returned.
  * - `SDL_GETEVENT`: up to `numevents` events at the front of the event queue,
  *   within the specified minimum and maximum type, will be returned to the
  *   caller and will be removed from the queue.
@@ -988,8 +1035,8 @@ typedef enum SDL_EventAction
  *                SDL_EVENT_FIRST is a safe choice.
  * \param maxType maximum value of the event type to be considered;
  *                SDL_EVENT_LAST is a safe choice.
- * \returns the number of events actually stored or a negative error code on
- *          failure; call SDL_GetError() for more information.
+ * \returns the number of events actually stored or -1 on failure; call
+ *          SDL_GetError() for more information.
  *
  * \since This function is available since SDL 3.0.0.
  *
@@ -1007,14 +1054,14 @@ extern SDL_DECLSPEC int SDLCALL SDL_PeepEvents(SDL_Event *events, int numevents,
  * instead.
  *
  * \param type the type of event to be queried; see SDL_EventType for details.
- * \returns SDL_TRUE if events matching `type` are present, or SDL_FALSE if
- *          events matching `type` are not present.
+ * \returns true if events matching `type` are present, or false if events
+ *          matching `type` are not present.
  *
  * \since This function is available since SDL 3.0.0.
  *
  * \sa SDL_HasEvents
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_HasEvent(Uint32 type);
+extern SDL_DECLSPEC bool SDLCALL SDL_HasEvent(Uint32 type);
 
 
 /**
@@ -1026,14 +1073,14 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_HasEvent(Uint32 type);
  *                SDL_EventType for details.
  * \param maxType the high end of event type to be queried, inclusive; see
  *                SDL_EventType for details.
- * \returns SDL_TRUE if events with type >= `minType` and <= `maxType` are
- *          present, or SDL_FALSE if not.
+ * \returns true if events with type >= `minType` and <= `maxType` are
+ *          present, or false if not.
  *
  * \since This function is available since SDL 3.0.0.
  *
  * \sa SDL_HasEvents
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_HasEvents(Uint32 minType, Uint32 maxType);
+extern SDL_DECLSPEC bool SDLCALL SDL_HasEvents(Uint32 minType, Uint32 maxType);
 
 /**
  * Clear events of a specific type from the event queue.
@@ -1120,8 +1167,7 @@ extern SDL_DECLSPEC void SDLCALL SDL_FlushEvents(Uint32 minType, Uint32 maxType)
  *
  * \param event the SDL_Event structure to be filled with the next event from
  *              the queue, or NULL.
- * \returns SDL_TRUE if this got an event or SDL_FALSE if there are none
- *          available.
+ * \returns true if this got an event or false if there are none available.
  *
  * \since This function is available since SDL 3.0.0.
  *
@@ -1129,7 +1175,7 @@ extern SDL_DECLSPEC void SDLCALL SDL_FlushEvents(Uint32 minType, Uint32 maxType)
  * \sa SDL_WaitEvent
  * \sa SDL_WaitEventTimeout
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_PollEvent(SDL_Event *event);
+extern SDL_DECLSPEC bool SDLCALL SDL_PollEvent(SDL_Event *event);
 
 /**
  * Wait indefinitely for the next available event.
@@ -1142,8 +1188,8 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_PollEvent(SDL_Event *event);
  *
  * \param event the SDL_Event structure to be filled in with the next event
  *              from the queue, or NULL.
- * \returns SDL_TRUE on success or SDL_FALSE if there was an error while
- *          waiting for events; call SDL_GetError() for more information.
+ * \returns true on success or false if there was an error while waiting for
+ *          events; call SDL_GetError() for more information.
  *
  * \since This function is available since SDL 3.0.0.
  *
@@ -1151,7 +1197,7 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_PollEvent(SDL_Event *event);
  * \sa SDL_PushEvent
  * \sa SDL_WaitEventTimeout
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_WaitEvent(SDL_Event *event);
+extern SDL_DECLSPEC bool SDLCALL SDL_WaitEvent(SDL_Event *event);
 
 /**
  * Wait until the specified timeout (in milliseconds) for the next available
@@ -1170,8 +1216,8 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_WaitEvent(SDL_Event *event);
  *              from the queue, or NULL.
  * \param timeoutMS the maximum number of milliseconds to wait for the next
  *                  available event.
- * \returns SDL_TRUE if this got an event or SDL_FALSE if the timeout elapsed
- *          without any events available.
+ * \returns true if this got an event or false if the timeout elapsed without
+ *          any events available.
  *
  * \since This function is available since SDL 3.0.0.
  *
@@ -1179,7 +1225,7 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_WaitEvent(SDL_Event *event);
  * \sa SDL_PushEvent
  * \sa SDL_WaitEvent
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_WaitEventTimeout(SDL_Event *event, Sint32 timeoutMS);
+extern SDL_DECLSPEC bool SDLCALL SDL_WaitEventTimeout(SDL_Event *event, Sint32 timeoutMS);
 
 /**
  * Add an event to the event queue.
@@ -1203,9 +1249,9 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_WaitEventTimeout(SDL_Event *event, Sint
  * its own custom event types.
  *
  * \param event the SDL_Event to be added to the queue.
- * \returns 1 on success, 0 if the event was filtered, or a negative error
- *          code on failure; call SDL_GetError() for more information. A
- *          common reason for error is the event queue being full.
+ * \returns true on success, false if the event was filtered or on failure;
+ *          call SDL_GetError() for more information. A common reason for
+ *          error is the event queue being full.
  *
  * \since This function is available since SDL 3.0.0.
  *
@@ -1213,7 +1259,7 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_WaitEventTimeout(SDL_Event *event, Sint
  * \sa SDL_PollEvent
  * \sa SDL_RegisterEvents
  */
-extern SDL_DECLSPEC int SDLCALL SDL_PushEvent(SDL_Event *event);
+extern SDL_DECLSPEC bool SDLCALL SDL_PushEvent(SDL_Event *event);
 
 /**
  * A function pointer used for callbacks that watch the event queue.
@@ -1221,8 +1267,9 @@ extern SDL_DECLSPEC int SDLCALL SDL_PushEvent(SDL_Event *event);
  * \param userdata what was passed as `userdata` to SDL_SetEventFilter() or
  *                 SDL_AddEventWatch, etc.
  * \param event the event that triggered the callback.
- * \returns 1 to permit event to be added to the queue, and 0 to disallow it.
- *          When used with SDL_AddEventWatch, the return value is ignored.
+ * \returns true to permit event to be added to the queue, and false to
+ *          disallow it. When used with SDL_AddEventWatch, the return value is
+ *          ignored.
  *
  * \threadsafety SDL may call this callback at any time from any thread; the
  *               application is responsible for locking resources the callback
@@ -1233,16 +1280,16 @@ extern SDL_DECLSPEC int SDLCALL SDL_PushEvent(SDL_Event *event);
  * \sa SDL_SetEventFilter
  * \sa SDL_AddEventWatch
  */
-typedef int (SDLCALL *SDL_EventFilter)(void *userdata, SDL_Event *event);
+typedef bool (SDLCALL *SDL_EventFilter)(void *userdata, SDL_Event *event);
 
 /**
  * Set up a filter to process all events before they change internal state and
  * are posted to the internal event queue.
  *
- * If the filter function returns 1 when called, then the event will be added
- * to the internal queue. If it returns 0, then the event will be dropped from
- * the queue, but the internal state will still be updated. This allows
- * selective filtering of dynamically arriving events.
+ * If the filter function returns true when called, then the event will be
+ * added to the internal queue. If it returns false, then the event will be
+ * dropped from the queue, but the internal state will still be updated. This
+ * allows selective filtering of dynamically arriving events.
  *
  * **WARNING**: Be very careful of what you do in the event filter function,
  * as it may run in a different thread!
@@ -1292,13 +1339,13 @@ extern SDL_DECLSPEC void SDLCALL SDL_SetEventFilter(SDL_EventFilter filter, void
  * \param filter the current callback function will be stored here.
  * \param userdata the pointer that is passed to the current event filter will
  *                 be stored here.
- * \returns SDL_TRUE on success or SDL_FALSE if there is no event filter set.
+ * \returns true on success or false if there is no event filter set.
  *
  * \since This function is available since SDL 3.0.0.
  *
  * \sa SDL_SetEventFilter
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_GetEventFilter(SDL_EventFilter *filter, void **userdata);
+extern SDL_DECLSPEC bool SDLCALL SDL_GetEventFilter(SDL_EventFilter *filter, void **userdata);
 
 /**
  * Add a callback to be triggered when an event is added to the event queue.
@@ -1320,17 +1367,17 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_GetEventFilter(SDL_EventFilter *filter,
  *
  * \param filter an SDL_EventFilter function to call when an event happens.
  * \param userdata a pointer that is passed to `filter`.
- * \returns 0 on success, or a negative error code on failure; call
- *          SDL_GetError() for more information.
+ * \returns true on success or false on failure; call SDL_GetError() for more
+ *          information.
  *
  * \threadsafety It is safe to call this function from any thread.
  *
  * \since This function is available since SDL 3.0.0.
  *
- * \sa SDL_DelEventWatch
+ * \sa SDL_RemoveEventWatch
  * \sa SDL_SetEventFilter
  */
-extern SDL_DECLSPEC int SDLCALL SDL_AddEventWatch(SDL_EventFilter filter, void *userdata);
+extern SDL_DECLSPEC bool SDLCALL SDL_AddEventWatch(SDL_EventFilter filter, void *userdata);
 
 /**
  * Remove an event watch callback added with SDL_AddEventWatch().
@@ -1345,11 +1392,11 @@ extern SDL_DECLSPEC int SDLCALL SDL_AddEventWatch(SDL_EventFilter filter, void *
  *
  * \sa SDL_AddEventWatch
  */
-extern SDL_DECLSPEC void SDLCALL SDL_DelEventWatch(SDL_EventFilter filter, void *userdata);
+extern SDL_DECLSPEC void SDLCALL SDL_RemoveEventWatch(SDL_EventFilter filter, void *userdata);
 
 /**
  * Run a specific filter function on the current event queue, removing any
- * events for which the filter returns 0.
+ * events for which the filter returns false.
  *
  * See SDL_SetEventFilter() for more information. Unlike SDL_SetEventFilter(),
  * this function does not change the filter permanently, it only uses the
@@ -1375,19 +1422,19 @@ extern SDL_DECLSPEC void SDLCALL SDL_FilterEvents(SDL_EventFilter filter, void *
  *
  * \sa SDL_EventEnabled
  */
-extern SDL_DECLSPEC void SDLCALL SDL_SetEventEnabled(Uint32 type, SDL_bool enabled);
+extern SDL_DECLSPEC void SDLCALL SDL_SetEventEnabled(Uint32 type, bool enabled);
 
 /**
  * Query the state of processing events by type.
  *
  * \param type the type of event; see SDL_EventType for details.
- * \returns SDL_TRUE if the event is being processed, SDL_FALSE otherwise.
+ * \returns true if the event is being processed, false otherwise.
  *
  * \since This function is available since SDL 3.0.0.
  *
  * \sa SDL_SetEventEnabled
  */
-extern SDL_DECLSPEC SDL_bool SDLCALL SDL_EventEnabled(Uint32 type);
+extern SDL_DECLSPEC bool SDLCALL SDL_EventEnabled(Uint32 type);
 
 /**
  * Allocate a set of user-defined events, and return the beginning event
@@ -1404,20 +1451,18 @@ extern SDL_DECLSPEC SDL_bool SDLCALL SDL_EventEnabled(Uint32 type);
 extern SDL_DECLSPEC Uint32 SDLCALL SDL_RegisterEvents(int numevents);
 
 /**
- * Allocate dynamic memory for an SDL event.
+ * Get window associated with an event.
  *
- * You can use this to allocate memory for user events that will be
- * automatically freed after the event is processed.
- *
- * \param size the amount of memory to allocate.
- * \returns a pointer to the memory allocated or NULL on failure; call
- *          SDL_GetError() for more information.
- *
- * \threadsafety It is safe to call this function from any thread.
+ * \param event an event containing a `windowID`.
+ * \returns the associated window on success or NULL if there is none.
  *
  * \since This function is available since SDL 3.0.0.
+ *
+ * \sa SDL_PollEvent
+ * \sa SDL_WaitEvent
+ * \sa SDL_WaitEventTimeout
  */
-extern SDL_DECLSPEC void * SDLCALL SDL_AllocateEventMemory(size_t size);
+extern SDL_DECLSPEC SDL_Window * SDLCALL SDL_GetWindowFromEvent(const SDL_Event *event);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

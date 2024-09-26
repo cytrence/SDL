@@ -30,7 +30,6 @@
 #define SDL_version_h_
 
 #include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_error.h>
 
 #include <SDL3/SDL_begin_code.h>
 /* Set up for C function definitions, even when using C++ */
@@ -163,8 +162,6 @@ extern SDL_DECLSPEC int SDLCALL SDL_GetVersion(void);
  * You shouldn't use this function for anything but logging it for debugging
  * purposes. The string is not intended to be reliable in any way.
  *
- * The returned string follows the SDL_GetStringRule.
- *
  * \returns an arbitrary string, uniquely identifying the exact revision of
  *          the SDL library in use.
  *
@@ -172,7 +169,7 @@ extern SDL_DECLSPEC int SDLCALL SDL_GetVersion(void);
  *
  * \sa SDL_GetVersion
  */
-extern SDL_DECLSPEC const char *SDLCALL SDL_GetRevision(void);
+extern SDL_DECLSPEC const char * SDLCALL SDL_GetRevision(void);
 
 
 /* Ends C function definitions when using C++ */

@@ -23,7 +23,7 @@
 
 #ifdef SDL_PLATFORM_PS2
 
-/* SDL_RunApp() code for PS2 based on SDL_ps2_main.c, fjtrujy@gmail.com */
+// SDL_RunApp() code for PS2 based on SDL_ps2_main.c, fjtrujy@gmail.com
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -36,7 +36,7 @@
 #include <sbv_patches.h>
 #include <ps2_filesystem_driver.h>
 
-__attribute__((weak)) void reset_IOP()
+__attribute__((weak)) void reset_IOP(void)
 {
     SifInitRpc(0);
     while (!SifIopReset(NULL, 0)) {
@@ -45,7 +45,7 @@ __attribute__((weak)) void reset_IOP()
     }
 }
 
-static void prepare_IOP()
+static void prepare_IOP(void)
 {
     reset_IOP();
     SifInitRpc(0);
@@ -54,12 +54,12 @@ static void prepare_IOP()
     sbv_patch_fileio();
 }
 
-static void init_drivers()
+static void init_drivers(void)
 {
 	init_ps2_filesystem_driver();
 }
 
-static void deinit_drivers()
+static void deinit_drivers(void)
 {
 	deinit_ps2_filesystem_driver();
 }
@@ -81,4 +81,4 @@ int SDL_RunApp(int argc, char* argv[], SDL_main_func mainFunction, void * reserv
     return res;
 }
 
-#endif /* SDL_PLATFORM_PS2 */
+#endif // SDL_PLATFORM_PS2

@@ -85,7 +85,7 @@ def main():
                     ignore_wiki_documentation = False
                 continue
 
-            # Discard wiki documentions blocks.
+            # Discard wiki documentations blocks.
             if line.startswith("#ifdef SDL_WIKI_DOCUMENTATION_SECTION"):
                 ignore_wiki_documentation = True
                 continue
@@ -99,7 +99,7 @@ def main():
             if match:
                 continue
 
-            # Remove one line comment /* ... */
+            # Remove one line comment // ...
             # eg: extern SDL_DECLSPEC SDL_hid_device * SDLCALL SDL_hid_open_path(const char *path, int bExclusive /* = false */);
             line = reg_comment_remove_content.sub('', line)
 
@@ -167,6 +167,7 @@ def main():
             func = func.replace(" SDL_PRINTF_VARARG_FUNCV(2)", "");
             func = func.replace(" SDL_PRINTF_VARARG_FUNCV(3)", "");
             func = func.replace(" SDL_WPRINTF_VARARG_FUNC(3)", "");
+            func = func.replace(" SDL_WPRINTF_VARARG_FUNCV(3)", "");
             func = func.replace(" SDL_SCANF_VARARG_FUNC(2)", "");
             func = func.replace(" SDL_SCANF_VARARG_FUNCV(2)", "");
             func = func.replace(" SDL_ANALYZER_NORETURN", "");
@@ -482,7 +483,7 @@ def add_dyn_api(proc):
     # File: SDL_dynapi_procs.h
     #
     # Add at last
-    # SDL_DYNAPI_PROC(SDL_EGLConfig,SDL_EGL_GetCurrentEGLConfig,(void),(),return)
+    # SDL_DYNAPI_PROC(SDL_EGLConfig,SDL_EGL_GetCurrentConfig,(void),(),return)
     f = open(SDL_DYNAPI_PROCS_H, "a", newline="")
     dyn_proc = "SDL_DYNAPI_PROC(" + func_ret + "," + func_name + ",("
 

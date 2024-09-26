@@ -38,10 +38,10 @@ static SDL_Surface *CreateSurface(unsigned char *data, unsigned int len, int *w,
     SDL_Surface *surface = NULL;
     SDL_IOStream *src = SDL_IOFromConstMem(data, len);
     if (src) {
-        surface = SDL_LoadBMP_IO(src, SDL_TRUE);
+        surface = SDL_LoadBMP_IO(src, true);
         if (surface) {
             /* Treat white as transparent */
-            SDL_SetSurfaceColorKey(surface, SDL_TRUE, SDL_MapSurfaceRGB(surface, 255, 255, 255));
+            SDL_SetSurfaceColorKey(surface, true, SDL_MapSurfaceRGB(surface, 255, 255, 255));
 
             *w = surface->w;
             *h = surface->h;
@@ -105,9 +105,6 @@ int main(int argc, char *argv[])
     int return_code = -1;
     int i;
 
-    /* Enable standard application logging */
-    SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
-
     if (argc > 1) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "USAGE: %s\n", argv[0]);
         return_code = 1;
@@ -140,8 +137,8 @@ int main(int argc, char *argv[])
         positions[i].y = SDL_rand(WINDOW_HEIGHT - sprite_h);
         positions[i].w = sprite_w;
         positions[i].h = sprite_h;
-        velocities[i].x = 0.0f;
-        velocities[i].y = 0.0f;
+        velocities[i].x = 0;
+        velocities[i].y = 0;
         while (velocities[i].x == 0.f && velocities[i].y == 0.f) {
             velocities[i].x = (SDL_rand(MAX_SPEED * 2 + 1)) - MAX_SPEED;
             velocities[i].y = (SDL_rand(MAX_SPEED * 2 + 1)) - MAX_SPEED;
