@@ -273,7 +273,7 @@
 #define SDL_GetCameraSupportedFormats SDL_GetCameraSupportedFormats_REAL
 #define SDL_GetCameras SDL_GetCameras_REAL
 #define SDL_GetClipboardData SDL_GetClipboardData_REAL
-#if !NOT_CYTRENCE
+#ifndef NOT_CYTRENCE
 #define SDL_IsCameraZombie SDL_IsCameraZombie_REAL
 #endif
 #define SDL_GetClipboardText SDL_GetClipboardText_REAL
