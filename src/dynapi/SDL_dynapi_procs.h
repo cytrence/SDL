@@ -239,7 +239,7 @@ SDL_DYNAPI_PROC(SDL_CameraDeviceID,SDL_GetCameraInstanceID,(SDL_Camera *a),(a),r
 SDL_DYNAPI_PROC(int,SDL_GetCameraPermissionState,(SDL_Camera *a),(a),return)
 SDL_DYNAPI_PROC(SDL_PropertiesID,SDL_GetCameraProperties,(SDL_Camera *a),(a),return)
 #ifndef NOT_CYTRENCE
-SDL_DYNAPI_PROC(bool,SDL_IsCameraZombie,(SDL_Camera *a),(a),return)
+SDL_DYNAPI_PROC(SDL_bool,SDL_IsCameraZombie,(SDL_Camera *a),(a),return)
 #endif
 SDL_DYNAPI_PROC(void*,SDL_GetClipboardData,(const char *a, size_t *b),(a,b),return)
 SDL_DYNAPI_PROC(char*,SDL_GetClipboardText,(void),(),return)
