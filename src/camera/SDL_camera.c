@@ -772,6 +772,12 @@ SDL_CameraSpec **SDL_GetCameraSupportedFormats(SDL_CameraID instance_id, int *co
     return result;
 }
 
+#ifndef NOT_CYTRENCE
+SDL_DECLSPEC bool SDLCALL SDL_IsCameraZombie(SDL_Camera *camera)
+{
+    return camera == NULL || SDL_GetAtomicInt(&camera->zombie) != 0;
+}
+#endif
 
 // Camera device thread. This is split into chunks, so drivers that need to control this directly can use the pieces they need without duplicating effort.
 
